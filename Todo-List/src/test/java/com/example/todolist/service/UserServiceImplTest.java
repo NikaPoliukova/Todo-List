@@ -1,8 +1,8 @@
-package com.example.TodoList.service;
+package com.example.todolist.service;
 
-import com.example.TodoList.entity.User;
-import com.example.TodoList.hendler.ResourceNotFoundException;
-import com.example.TodoList.repository.UserRepository;
+import com.example.todolist.entity.User;
+import com.example.todolist.hendler.ResourceNotFoundException;
+import com.example.todolist.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
