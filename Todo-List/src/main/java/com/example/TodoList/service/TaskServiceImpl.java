@@ -1,10 +1,12 @@
-package org.example.service;
+package com.example.TodoList.service;
 
-import org.example.entity.Task;
-import org.example.hendler.ResourceNotFoundException;
-import org.example.repository.TaskRepository;
+
+import com.example.TodoList.entity.Task;
+import com.example.TodoList.hendler.ResourceNotFoundException;
+import com.example.TodoList.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service

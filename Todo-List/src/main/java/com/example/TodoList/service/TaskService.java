@@ -1,6 +1,8 @@
-package org.example.service;
+package com.example.TodoList.service;
 
-import org.example.entity.Task;
+
+
+import com.example.TodoList.entity.Task;
 
 import java.util.List;
 

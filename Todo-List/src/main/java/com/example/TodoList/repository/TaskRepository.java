@@ -1,6 +1,7 @@
-package org.example.repository;
+package com.example.TodoList.repository;
 
-import org.example.entity.Task;
+
+import com.example.TodoList.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

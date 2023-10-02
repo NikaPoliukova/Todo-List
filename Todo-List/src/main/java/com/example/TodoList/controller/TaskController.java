@@ -1,8 +1,11 @@
-package org.example.controller;
-import org.example.entity.Task;
-import org.example.service.TaskService;
+package com.example.TodoList.controller;
+
+
+import com.example.TodoList.entity.Task;
+import com.example.TodoList.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 
