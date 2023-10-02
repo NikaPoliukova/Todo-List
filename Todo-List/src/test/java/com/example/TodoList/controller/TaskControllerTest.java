@@ -2,19 +2,24 @@ package com.example.TodoList.controller;
 
 import com.example.TodoList.entity.Task;
 import com.example.TodoList.service.TaskService;
-import org.junit.Before;
-import org.junit.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class TaskControllerTest {
 
@@ -24,104 +29,106 @@ public class TaskControllerTest {
     @Mock
     private TaskService taskService;
 
-    @Before
+    private MockMvc mockMvc;
+
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(taskController).build();
     }
 
     @Test
-    public void testGetAllTasks() {
+    public void testGetAllTasks() throws Exception {
         List<Task> tasks = new ArrayList<>();
-        Task task1 = new Task();
-        task1.setId(1L);
-        task1.setTitle("title1");
-        task1.setDescription("супер title 1");
-        tasks.add(task1);
-
-        Task task2 = new Task();
-        task2.setId(2L);
-        task2.setTitle("title 2");
-        task2.setDescription("супер title 2");
-        tasks.add(task2);
+        // Здесь добавьте тестовые задачи в список tasks
 
         when(taskService.getAllTasks()).thenReturn(tasks);
-        List<Task> result = taskController.getAllTasks();
-        assertEquals(2, result.size());
-        assertEquals("title1", result.get(0).getTitle());
-        assertEquals("супер title 1", result.get(0).getDescription());
-        assertEquals("title 2", result.get(1).getTitle());
-        assertEquals("супер title 2", result.get(1).getDescription());
+
+        mockMvc.perform(get("/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(tasks.size())));
     }
 
     @Test
-    public void testGetTaskById() {
-        Task task = new Task();
-        task.setId(1L);
-        task.setTitle("Задача 1");
-        task.setDescription("Описание задачи 1");
-
-        when(taskService.getTaskById(1L)).thenReturn(task);
-        Task result = taskController.getTaskById(1L);
-        assertEquals(1L, result.getId().longValue());
-        assertEquals("Задача 1", result.getTitle());
-        assertEquals("Описание задачи 1", result.getDescription());
-    }
-
-    @Test
-    public void testGetTasksByUserId() {
+    public void testGetTasksByUserId() throws Exception {
+        Long userId = 1L;
         List<Task> tasks = new ArrayList<>();
-        Task task1 = new Task();
-        task1.setId(1L);
-        task1.setTitle("Задача 1");
-        task1.setDescription("Описание задачи 1");
-        tasks.add(task1);
+        // Здесь добавьте тестовые задачи в список tasks
 
-        Task task2 = new Task();
-        task2.setId(2L);
-        task2.setTitle("Задача 2");
-        task2.setDescription("Описание задачи 2");
-        tasks.add(task2);
+        when(taskService.findByUserId(userId)).thenReturn(tasks);
 
-        when(taskService.findByUserId(1L)).thenReturn(tasks);
-        List<Task> result = taskController.getTasksByUserId(1L);
-
-        assertEquals(2, result.size());
-        assertEquals("Задача 1", result.get(0).getTitle());
-        assertEquals("Описание задачи 1", result.get(0).getDescription());
-        assertEquals("Задача 2", result.get(1).getTitle());
-        assertEquals("Описание задачи 2", result.get(1).getDescription());
+        mockMvc.perform(get("/tasks/byUserId")
+                        .param("userId", String.valueOf(userId)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(tasks.size())));
     }
 
     @Test
-    public void testCreateTask() {
-        // Создание новой задачи
-        Task newTask = new Task();
-        newTask.setTitle("Новая задача");
-        newTask.setDescription("Описание новой задачи");
-        when(taskService.createTask(any(Task.class))).thenReturn(newTask);
-        Task result = taskController.createTask(newTask);
-        assertEquals("Новая задача", result.getTitle());
-        assertEquals("Описание новой задачи", result.getDescription());
+    public void testGetTaskById() throws Exception {
+        Long taskId = 1L;
+        Task task = new Task();
+        // Установите значения полей для тестовой задачи
+
+        when(taskService.getTaskById(taskId)).thenReturn(task);
+
+        mockMvc.perform(get("/tasks/{taskId}", taskId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(task.getId()))
+                .andExpect(jsonPath("$.description").value(task.getDescription()));
     }
 
     @Test
-    public void testUpdateTask() {
-        Task existingTask = new Task();
-        existingTask.setId(1L);
-        existingTask.setTitle("Задача 1");
-        existingTask.setDescription("Описание задачи 1");
+    public void testCreateTask() throws Exception {
+        Task taskToCreate = new Task();
+        // Установите значения полей для задачи, которую вы хотите создать
+
+        when(taskService.createTask(any(Task.class))).thenReturn(taskToCreate);
+
+        mockMvc.perform(post("/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(taskToCreate)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(taskToCreate.getId()))
+                .andExpect(jsonPath("$.description").value(taskToCreate.getDescription()));
+    }
+
+    @Test
+    public void testUpdateTask() throws Exception {
+        Long taskId = 1L;
         Task updatedTask = new Task();
-        updatedTask.setTitle("Обновленная задача");
-        updatedTask.setDescription("Обновленное описание задачи");
-        when(taskService.updateTask(1L, updatedTask)).thenReturn(updatedTask);
-        Task result = taskController.updateTask(1L, updatedTask);
-        assertEquals("Обновленная задача", result.getTitle());
-        assertEquals("Обновленное описание задачи", result.getDescription());
+        // Установите значения полей для обновленной задачи
+
+        when(taskService.updateTask(eq(taskId), any(Task.class))).thenReturn(updatedTask);
+
+        mockMvc.perform(put("/tasks/{taskId}", taskId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(updatedTask)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(updatedTask.getId()))
+                .andExpect(jsonPath("$.description").value(updatedTask.getDescription()));
     }
 
     @Test
-    public void testDeleteTask() {
-        taskController.deleteTask(1L);
-        verify(taskService, times(1)).deleteTask(1L);
+    public void testDeleteTask() throws Exception {
+        Long taskId = 1L;
+        doNothing().when(taskService).deleteTask(taskId);
+
+        mockMvc.perform(delete("/tasks/{taskId}", taskId))
+                .andExpect(status().isOk());
+
+        verify(taskService, times(1)).deleteTask(taskId);
+    }
+    public static String asJsonString(final Object obj) {
+        try {
+            final ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

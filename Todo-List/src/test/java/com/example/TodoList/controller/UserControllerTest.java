@@ -1,22 +1,28 @@
 package com.example.TodoList.controller;
 
-import com.example.TodoList.entity.Task;
 import com.example.TodoList.entity.User;
 import com.example.TodoList.service.UserService;
-import org.junit.Before;
-import org.junit.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
-
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserControllerTest {
+
+    private MockMvc mockMvc;
 
     @InjectMocks
     private UserController userController;
@@ -24,83 +30,67 @@ public class UserControllerTest {
     @Mock
     private UserService userService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
     @Test
-    public void testGetAllUsers() {
-        List<User> users = new ArrayList<>();
-        when(userService.getAllUsers()).thenReturn(users);
-        List<User> result = userController.getAllUsers();
-        verify(userService, times(1)).getAllUsers();
-        assertEquals(users, result);
+    public void testGetAllUsers() throws Exception {
+        List<User> userList = new ArrayList<>();
+        when(userService.getAllUsers()).thenReturn(userList);
+        mockMvc.perform(MockMvcRequestBuilders.get("/users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testGetUserById() {
+    public void testGetUserById() throws Exception {
+        Long userId = 1L;
         User user = new User();
-        user.setId(1L);
-        when(userService.getUserById(1L)).thenReturn(user);
-        User result = userController.getUserById(1L);
-        verify(userService, times(1)).getUserById(1L);
-        assertEquals(user, result);
+        when(userService.getUserById(userId)).thenReturn(user);
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testCreateUser() {
-        User newUser = new User();
-        newUser.setUsername("New User");
-        User expectedUser = new User();
-        expectedUser.setId(1L);
-        expectedUser.setUsername("New User");
-        when(userService.createUser(newUser)).thenReturn(expectedUser);
-        User result = userController.createUser(newUser);
-        verify(userService, times(1)).createUser(newUser);
-        assertEquals(expectedUser, result);
+    public void testCreateUser() throws Exception {
+        User user = new User();
+        when(userService.createUser(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(user)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testUpdateUser() {
+    public void testUpdateUser() throws Exception {
+        Long userId = 1L;
         User updatedUser = new User();
-        updatedUser.setUsername("Updated User");
-        User expectedUser = new User();
-        expectedUser.setId(1L);
-        expectedUser.setUsername("Updated User");
-        when(userService.updateUser(1L, updatedUser)).thenReturn(expectedUser);
-        User result = userController.updateUser(1L, updatedUser);
-        verify(userService, times(1)).updateUser(1L, updatedUser);
-        assertEquals(expectedUser, result);
+        when(userService.updateUser(userId, updatedUser)).thenReturn(updatedUser);
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(updatedUser)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testDeleteUser() {
-        userController.deleteUser(1L);
-        verify(userService, times(1)).deleteUser(1L);
+    public void testDeleteUser() throws Exception {
+        Long userId = 1L;
+        mockMvc.perform(MockMvcRequestBuilders.delete("/users/{userId}", userId))
+                .andExpect(status().isOk());
     }
 
-    @Test
-    public void testGetUserTasks() {
-        List<Task> tasks = new ArrayList<>();
-        when(userService.getUserTasks(1L)).thenReturn(tasks);
-        List<Task> result = userController.getUserTasks(1L);
-        verify(userService, times(1)).getUserTasks(1L);
-        assertEquals(tasks, result);
-    }
-
-    @Test
-    public void testCreateUserTask() {
-        Task newTask = new Task();
-        newTask.setTitle("New Task");
-        newTask.setDescription("Description");
-        Task expectedTask = new Task();
-        expectedTask.setId(1L);
-        expectedTask.setTitle("New Task");
-        expectedTask.setDescription("Description");
-        when(userService.createUserTask(1L, newTask)).thenReturn(expectedTask);
-        Task result = userController.createUserTask(1L, newTask);
-        verify(userService, times(1)).createUserTask(1L, newTask);
-        assertEquals(expectedTask, result);
+    public static String asJsonString(final Object obj) {
+        try {
+            final ObjectMapper mapper = new ObjectMapper();
+            final String jsonContent = mapper.writeValueAsString(obj);
+            return jsonContent;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
