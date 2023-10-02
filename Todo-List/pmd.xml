@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="6.39.0">
+    <name>MyPMDRules</name> <!-- Имя вашего Ruleset -->
+    <description>Custom PMD Ruleset</description> <!-- Описание вашего Ruleset -->
+    <ruleset>
+        <rule ref="category/java/bestpractices.xml"/>
+        <rule ref="category/java/codestyle.xml"/>
+        <rule ref="category/java/design.xml"/>
+    </ruleset>
+</pmd>
