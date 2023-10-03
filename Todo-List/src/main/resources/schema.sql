@@ -1,3 +1,10 @@
+select
+    t.description,
+    t.id,
+    t.title,
+    t.user_id
+from
+    task t;
 
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
