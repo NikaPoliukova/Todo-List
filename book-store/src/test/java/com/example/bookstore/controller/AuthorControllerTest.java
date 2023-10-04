@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -25,7 +26,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 public class AuthorControllerTest {
 
 
@@ -37,10 +37,12 @@ public class AuthorControllerTest {
 
   private MockMvc mockMvc;
 
+
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     mockMvc = MockMvcBuilders.standaloneSetup(authorController).build();
+
   }
 
   @Test
@@ -48,7 +50,6 @@ public class AuthorControllerTest {
     List<Author> authors = new ArrayList<>();
     authors.add(new Author(1L, "John Doe"));
     authors.add(new Author(2L, "Jane Smith"));
-
     when(authorService.getAllAuthors()).thenReturn(authors);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/authors"))
         .andExpect(status().isOk())
@@ -58,6 +59,34 @@ public class AuthorControllerTest {
         .andExpect(jsonPath("$[1].id").value(2))
         .andExpect(jsonPath("$[1].name").value("Jane Smith"));
   }
+
+  @Test
+  public void testUpdateAuthor_Positive() {
+    Author authorToUpdate = new Author(1L, "Updated Author");
+    Author updatedAuthor = new Author(1L, "Updated Author");
+    when(authorService.updateAuthor(authorToUpdate)).thenReturn(updatedAuthor);
+    ResponseEntity<Author> responseEntity = authorController.updateAuthor(authorToUpdate);
+    assert (responseEntity.getStatusCode() == HttpStatus.OK);
+    assert (responseEntity.getBody().getId() == 1L);
+    assert (responseEntity.getBody().getName().equals("Updated Author"));
+    verify(authorService, times(1)).updateAuthor(authorToUpdate);
+    verifyNoMoreInteractions(authorService);
+  }
+
+  @Test
+  public void testCreateAuthor_Positive() throws Exception {
+    Author authorToCreate = new Author();
+    authorToCreate.setName("New Author");
+    Author createdAuthor = new Author(1L, "New Author");
+    when(authorService.createAuthor(any())).thenReturn(createdAuthor);
+    mockMvc.perform(post("/api/authors/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"name\":\"New Author\"}"))
+        .andExpect(status().isCreated());
+    verify(authorService, times(1)).createAuthor(any());
+    verifyNoMoreInteractions(authorService);
+  }
+
 
   @Test
   public void testGetAuthorById() throws Exception {

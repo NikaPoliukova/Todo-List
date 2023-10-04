@@ -7,14 +7,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AuthorServiceImplTest {
 
@@ -88,6 +89,28 @@ public class AuthorServiceImplTest {
   public void testDeleteAuthor() {
     authorService.deleteAuthor(1L);
     verify(authorRepository).deleteById(1L);
+  }
+
+  @Test
+  public void testUpdateAuthor_NotFound() {
+    Author nonExistingAuthor = new Author();
+    nonExistingAuthor.setId(100L);
+    when(authorRepository.existsById(nonExistingAuthor.getId())).thenReturn(false);
+    assertThrows(ResponseStatusException.class, () -> authorService.updateAuthor(nonExistingAuthor));
+  }
+
+  @Test
+  public void testDeleteAuthor_NotFound() {
+    Long nonExistingId = 100L;
+    doThrow(EmptyResultDataAccessException.class).when(authorRepository).deleteById(nonExistingId);
+    assertThrows(ResponseStatusException.class, () -> authorService.deleteAuthor(nonExistingId));
+  }
+
+  @Test
+  public void testCreateAuthor_Error() {
+    Author authorToCreate = new Author();
+    when(authorRepository.save(authorToCreate)).thenThrow(RuntimeException.class);
+    assertThrows(ResponseStatusException.class, () -> authorService.createAuthor(authorToCreate));
   }
 }
 

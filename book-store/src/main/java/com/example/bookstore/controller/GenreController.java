@@ -34,6 +34,7 @@ public class GenreController {
 
   @PostMapping("/create")
   public ResponseEntity<Genre> createGenre(@RequestBody Genre genre) {
+    // Проверка на валидность данных жанра с использованием аннотации @Valid
     Genre createdGenre = genreService.createGenre(genre);
     return new ResponseEntity<>(createdGenre, HttpStatus.CREATED);
   }
