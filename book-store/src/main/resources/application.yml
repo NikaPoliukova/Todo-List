@@ -1,6 +1,8 @@
+server:
+  port: 8081
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/todo_list
+    url: jdbc:mysql://localhost:3306/bookstore
     username: root
     password: nikucha666
     driver-class-name: com.mysql.cj.jdbc.Driver
