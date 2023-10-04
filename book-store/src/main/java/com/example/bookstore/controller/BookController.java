@@ -6,6 +6,7 @@ import com.example.bookstore.entity.Genre;
 import com.example.bookstore.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,8 +46,8 @@ public class BookController {
     return bookService.getBooksByGenre(genre);
   }
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping  @ResponseStatus(HttpStatus.CREATED)
+  @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public Book createBook(@RequestBody Book book) {
     return bookService.createBook(book);
   }

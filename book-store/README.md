@@ -7,7 +7,7 @@ create, read, update and delete tasks in a list.
 
 1. **Clone the repository**
    Run the following command to clone the repository on your local machine:
-  
+   https://github.com/NikaPoliukova/Todo-List/tree/master/book-store
 
 2. **Launch the application**
 

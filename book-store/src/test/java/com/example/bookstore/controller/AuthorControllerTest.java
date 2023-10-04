@@ -52,7 +52,7 @@ public class AuthorControllerTest {
     when(authorService.getAllAuthors()).thenReturn(authors);
     mockMvc.perform(MockMvcRequestBuilders.get("/api/authors"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$", hasSize(2))) //
+        .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$[0].id").value(1))
         .andExpect(jsonPath("$[0].name").value("John Doe"))
         .andExpect(jsonPath("$[1].id").value(2))

@@ -4,8 +4,6 @@ import com.example.bookstore.entity.Author;
 import com.example.bookstore.entity.Book;
 import com.example.bookstore.entity.Genre;
 import com.example.bookstore.repository.BookRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -14,8 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Service
 public class BookServiceImpl implements BookService {
   @Autowired
