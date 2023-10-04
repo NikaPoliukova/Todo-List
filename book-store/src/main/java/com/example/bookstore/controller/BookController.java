@@ -46,7 +46,8 @@ public class BookController {
     return bookService.getBooksByGenre(genre);
   }
 
-  @PostMapping  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public Book createBook(@RequestBody Book book) {
     return bookService.createBook(book);

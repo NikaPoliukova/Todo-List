@@ -1,7 +1,9 @@
-# My application for managing a task list
+# My application book-store :
 
-It is a simple application that allows users to:
-create, read, update and delete tasks in a list.
+By implementing this application, users can manage books, authors, and genres in a simple online bookstore, 
+search for books, and perform CRUD operations securely and efficiently.
+
+
 
 ## Startup instructions
 
